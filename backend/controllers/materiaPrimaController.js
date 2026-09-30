@@ -1,4 +1,5 @@
 const materiaPrimaModel = require('../models/materiaPrimaModel');
+const loteModel = require('../models/loteProduccionModel');
 
 async function listar(req, res) {
   try {
@@ -64,9 +65,32 @@ async function asociarALote(req, res) {
     if (!id_lote_produccion) {
       return res.status(400).json({ error: 'id_lote_produccion es obligatorio' });
     }
+
+    // H2 (S6): una MP ya utilizada no puede reasignarse a otro lote,
+    // porque se perdería la trazabilidad hacia atrás del lote original.
+    const materia = await materiaPrimaModel.getById(req.params.id);
+    if (!materia || !materia.activo) {
+      return res.status(404).json({ error: 'Materia prima no encontrada o inactiva' });
+    }
+    if (materia.estado !== 'disponible') {
+      return res.status(409).json({
+        error: 'La materia prima ya fue utilizada en otro lote y no puede reasignarse',
+        id_lote_actual: materia.id_lote_produccion
+      });
+    }
+
+    const lote = await loteModel.getById(id_lote_produccion);
+    if (!lote || !lote.activo) {
+      return res.status(404).json({ error: 'Lote de producción no encontrado o inactivo' });
+    }
+    if (lote.estado === 'finalizado') {
+      return res.status(409).json({ error: 'No se puede asociar materia prima a un lote finalizado' });
+    }
+
     const filas = await materiaPrimaModel.asociarALote(req.params.id, id_lote_produccion);
     if (filas === 0) {
-      return res.status(404).json({ error: 'Materia prima no encontrada o inactiva' });
+      // Otra operación la asoció entre la verificación y el UPDATE
+      return res.status(409).json({ error: 'La materia prima ya no está disponible' });
     }
     res.json({ mensaje: 'Materia prima asociada al lote correctamente' });
   } catch (error) {

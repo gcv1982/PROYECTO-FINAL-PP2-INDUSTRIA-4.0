@@ -34,11 +34,13 @@ async function update(id, { nombre, codigo_qr, fecha_ingreso, id_proveedor }) {
   return rows[0];
 }
 
+// H2 (S6): solo se asocia una MP activa y 'disponible'. La condición va en el mismo
+// UPDATE para que dos asociaciones simultáneas no puedan reasignar la misma MP.
 async function asociarALote(id_materia_prima, id_lote_produccion) {
   const result = await pool.query(
     `UPDATE MateriaPrima
      SET id_lote_produccion = $1, estado = 'utilizada'
-     WHERE id_materia_prima = $2 AND activo = true`,
+     WHERE id_materia_prima = $2 AND activo = true AND estado = 'disponible'`,
     [id_lote_produccion, id_materia_prima]
   );
   return result.rowCount;
