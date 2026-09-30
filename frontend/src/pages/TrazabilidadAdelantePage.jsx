@@ -37,6 +37,7 @@ function TrazabilidadAdelantePage() {
         <div>
           <h3>Materia Prima</h3>
           <p>{resultado.materia_prima.nombre} — Estado: {resultado.materia_prima.estado}</p>
+          <p>Proveedor: {resultado.materia_prima.proveedor.nombre} — QR: {resultado.materia_prima.codigo_qr}</p>
           <h3>Lote de producción</h3>
           {resultado.lote ? (
             <p>{resultado.lote.codigo_lote} — {resultado.lote.producto} ({resultado.lote.fecha_produccion})</p>

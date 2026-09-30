@@ -110,4 +110,17 @@ async function eliminar(req, res) {
   }
 }
 
-module.exports = { listar, obtenerPorId, crear, actualizar, asociarALote, eliminar };
+// Trazabilidad hacia adelante (S6): la pantalla ya la consumía, pero el endpoint no existía
+async function obtenerTrazabilidad(req, res) {
+  try {
+    const resultado = await materiaPrimaModel.getTrazabilidad(req.params.id);
+    if (!resultado) {
+      return res.status(404).json({ error: 'Materia prima no encontrada' });
+    }
+    res.json(resultado);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener la trazabilidad de la materia prima' });
+  }
+}
+
+module.exports = { listar, obtenerPorId, obtenerTrazabilidad, crear, actualizar, asociarALote, eliminar };

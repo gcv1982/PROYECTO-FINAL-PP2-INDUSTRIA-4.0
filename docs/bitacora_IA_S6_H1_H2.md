@@ -28,3 +28,22 @@
 - H3: se puede editar el proveedor/QR de una MP ya utilizada.
 - H4: editar un lote sin enviar `estado` lo reabre (`estado || 'en_proceso'`).
 - H5: DELETE repetido responde 200 en lugar de 404.
+
+---
+
+# Bitácora de uso de IA — Escenario integral S6 (30/09/2026)
+
+| Campo | Detalle |
+|---|---|
+| Herramienta | Claude (tutor PP2) |
+| Objetivo | Evidenciar el flujo integral frontend → API → BD → interfaz sin capturas manuales |
+| Resultado | Script `tests/e2e/escenario_s6.mjs` (Playwright): recorre 8 pasos en el navegador, guarda una captura por paso en `tests/e2e/evidencias/` y genera `tests/e2e/informe_s6.md` |
+
+## Hallazgo H6 (detectado al preparar el escenario) — corregido
+- Problema: la pantalla "Trazabilidad hacia adelante" llamaba a `GET /api/materia-prima/:id/trazabilidad`, pero ese endpoint **no existía** en el backend (la pantalla siempre mostraba "Error al buscar").
+- Corrección: nuevo endpoint (`materiaPrimaRoutes.js`, `materiaPrimaController.obtenerTrazabilidad`, `materiaPrimaModel.getTrazabilidad`) que devuelve la MP, su proveedor de origen y el lote donde se utilizó.
+- Mejora: la trazabilidad hacia atrás ahora incluye el **proveedor** y el **QR** de cada MP (antes solo el nombre), que es el objetivo del problema planteado en S1.
+
+## Resultado de mi corrida
+- Escenario S6: _(completar: X/8 pasos OK)_
+- Colección Postman después de los cambios: _(completar: 67 passed / 3 failed esperado)_

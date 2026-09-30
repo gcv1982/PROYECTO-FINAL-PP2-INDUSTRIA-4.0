@@ -55,4 +55,31 @@ async function darDeBaja(id) {
   return rows[0];
 }
 
-module.exports = { getAll, getById, create, update, asociarALote, darDeBaja };
+// Trazabilidad hacia adelante (S6): materia prima -> proveedor de origen -> lote donde se utilizó
+async function getTrazabilidad(id) {
+  const { rows } = await pool.query(
+    `SELECT mp.id_materia_prima, mp.nombre, mp.codigo_qr, mp.fecha_ingreso, mp.estado, mp.activo,
+            p.id_proveedor, p.nombre AS proveedor_nombre,
+            l.id_lote_produccion, l.codigo_lote, l.producto, l.fecha_produccion, l.estado AS lote_estado
+     FROM MateriaPrima mp
+     JOIN Proveedor p ON p.id_proveedor = mp.id_proveedor
+     LEFT JOIN LoteProduccion l ON l.id_lote_produccion = mp.id_lote_produccion
+     WHERE mp.id_materia_prima = $1`,
+    [id]
+  );
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    materia_prima: {
+      id_materia_prima: r.id_materia_prima, nombre: r.nombre, codigo_qr: r.codigo_qr,
+      fecha_ingreso: r.fecha_ingreso, estado: r.estado, activo: r.activo,
+      proveedor: { id_proveedor: r.id_proveedor, nombre: r.proveedor_nombre }
+    },
+    lote: r.id_lote_produccion ? {
+      id_lote_produccion: r.id_lote_produccion, codigo_lote: r.codigo_lote, producto: r.producto,
+      fecha_produccion: r.fecha_produccion, estado: r.lote_estado
+    } : null
+  };
+}
+
+module.exports = { getAll, getById, create, update, asociarALote, darDeBaja, getTrazabilidad };

@@ -1,3 +1,6 @@
 # Workspace local de Postman (la coleccion oficial esta en tests/postman)
 .postman/
 postman/
+
+# Dependencias y resultados locales de las pruebas E2E
+tests/e2e/node_modules/

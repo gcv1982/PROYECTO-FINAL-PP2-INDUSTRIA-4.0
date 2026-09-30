@@ -41,7 +41,7 @@ function TrazabilidadAtrasPage() {
           {resultado.materias_primas.length > 0 ? (
             <ul>
               {resultado.materias_primas.map((mp) => (
-                <li key={mp.id_materia_prima}>{mp.nombre} (id: {mp.id_materia_prima})</li>
+                <li key={mp.id_materia_prima}>{mp.nombre} (id: {mp.id_materia_prima}) — Proveedor: {mp.proveedor_nombre} — QR: {mp.codigo_qr}</li>
               ))}
             </ul>
           ) : (

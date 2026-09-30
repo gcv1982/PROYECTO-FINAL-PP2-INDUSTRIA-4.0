@@ -7,6 +7,7 @@ const { verificarRol } = require('../middlewares/roleMiddleware');
 // Consulta: cualquier rol autenticado
 router.get('/', verificarToken, materiaPrimaController.listar);
 router.get('/:id', verificarToken, materiaPrimaController.obtenerPorId);
+router.get('/:id/trazabilidad', verificarToken, materiaPrimaController.obtenerTrazabilidad);
 
 // Registrar / editar / dar de baja materia prima: Calidad y Supervisión
 router.post('/', verificarToken, verificarRol(['calidad', 'supervision']), materiaPrimaController.crear);

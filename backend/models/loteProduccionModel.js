@@ -20,8 +20,12 @@ async function getConMateriasPrimas(id) {
     'SELECT * FROM LoteProduccion WHERE id_lote_produccion = $1',
     [id]
   );
+  // S6: se incluye el proveedor de origen de cada materia prima (objetivo de la trazabilidad hacia atrás)
   const materias = await pool.query(
-    'SELECT * FROM MateriaPrima WHERE id_lote_produccion = $1',
+    `SELECT mp.*, p.nombre AS proveedor_nombre
+     FROM MateriaPrima mp
+     JOIN Proveedor p ON p.id_proveedor = mp.id_proveedor
+     WHERE mp.id_lote_produccion = $1`,
     [id]
   );
   return { lote: lote.rows[0], materias_primas: materias.rows };
