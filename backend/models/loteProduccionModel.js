@@ -1,8 +1,7 @@
-
 const pool = require('../config/db');
 
 async function getAll() {
-  const { rows } = await pool.query('SELECT * FROM LoteProduccion');
+  const { rows } = await pool.query('SELECT * FROM LoteProduccion WHERE activo = true');
   return rows;
 }
 
@@ -14,6 +13,8 @@ async function getById(id) {
   return rows[0];
 }
 
+// Trazabilidad hacia atrás: dado un lote, ver qué materias primas se usaron
+// No se filtra por activo: la trazabilidad debe poder reconstruirse aunque el lote haya sido dado de baja
 async function getConMateriasPrimas(id) {
   const lote = await pool.query(
     'SELECT * FROM LoteProduccion WHERE id_lote_produccion = $1',
@@ -37,4 +38,24 @@ async function create({ codigo_lote, fecha_produccion, producto, cantidad_produc
   return rows[0].id_lote_produccion;
 }
 
-module.exports = { getAll, getById, getConMateriasPrimas, create };
+async function update(id, { fecha_produccion, producto, cantidad_producida, unidad_medida, estado }) {
+  const { rows } = await pool.query(
+    `UPDATE LoteProduccion
+     SET fecha_produccion = $1, producto = $2, cantidad_producida = $3, unidad_medida = $4, estado = $5
+     WHERE id_lote_produccion = $6 AND activo = true
+     RETURNING id_lote_produccion`,
+    [fecha_produccion, producto, cantidad_producida, unidad_medida, estado, id]
+  );
+  return rows[0];
+}
+
+// Baja lógica: el lote permanece en la BD para no romper la trazabilidad de las materias primas ya asociadas
+async function darDeBaja(id) {
+  const { rows } = await pool.query(
+    `UPDATE LoteProduccion SET activo = false WHERE id_lote_produccion = $1 RETURNING id_lote_produccion`,
+    [id]
+  );
+  return rows[0];
+}
+
+module.exports = { getAll, getById, getConMateriasPrimas, create, update, darDeBaja };

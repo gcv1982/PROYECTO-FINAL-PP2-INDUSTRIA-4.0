@@ -47,8 +47,44 @@ async function crear(req, res) {
     });
     res.status(201).json({ id_lote_produccion: id, codigo_lote, estado: 'en_proceso' });
   } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'Ya existe un lote con ese código' });
+    }
     res.status(500).json({ error: 'Error al crear el lote de producción' });
   }
 }
 
-module.exports = { listar, obtenerPorId, obtenerTrazabilidad, crear };
+async function actualizar(req, res) {
+  try {
+    const { fecha_produccion, producto, cantidad_producida, unidad_medida, estado } = req.body;
+    if (!fecha_produccion || !producto) {
+      return res.status(400).json({ error: 'fecha_produccion y producto son obligatorios' });
+    }
+    if (estado && !['en_proceso', 'finalizado'].includes(estado)) {
+      return res.status(400).json({ error: "estado debe ser 'en_proceso' o 'finalizado'" });
+    }
+    const actualizado = await loteModel.update(req.params.id, {
+      fecha_produccion, producto, cantidad_producida, unidad_medida, estado: estado || 'en_proceso'
+    });
+    if (!actualizado) {
+      return res.status(404).json({ error: 'Lote no encontrado o inactivo' });
+    }
+    res.json({ mensaje: 'Lote actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el lote' });
+  }
+}
+
+async function eliminar(req, res) {
+  try {
+    const eliminado = await loteModel.darDeBaja(req.params.id);
+    if (!eliminado) {
+      return res.status(404).json({ error: 'Lote no encontrado' });
+    }
+    res.json({ mensaje: 'Lote dado de baja correctamente (se conserva para trazabilidad)' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al dar de baja el lote' });
+  }
+}
+
+module.exports = { listar, obtenerPorId, obtenerTrazabilidad, crear, actualizar, eliminar };

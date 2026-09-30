@@ -1,9 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
+const { verificarToken } = require('../middlewares/authMiddleware');
 
-router.get('/', usuarioController.listar);
-router.get('/:id', usuarioController.obtenerPorId);
-router.post('/', usuarioController.crear);
+// Decisión de la Semana 4: sin restricción de rol adicional para gestión de usuarios,
+// solo requiere estar autenticado (cualquier rol: calidad, logistica, supervision).
+router.get('/', verificarToken, usuarioController.listar);
+router.get('/:id', verificarToken, usuarioController.obtenerPorId);
+router.post('/', verificarToken, usuarioController.crear);
+router.put('/:id', verificarToken, usuarioController.actualizar);
+router.delete('/:id', verificarToken, usuarioController.eliminar);
 
 module.exports = router;

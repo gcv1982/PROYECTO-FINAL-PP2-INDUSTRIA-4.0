@@ -34,4 +34,32 @@ async function crear(req, res) {
   }
 }
 
-module.exports = { listar, obtenerPorId, crear };
+async function actualizar(req, res) {
+  try {
+    const { nombre, contacto, telefono } = req.body;
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+    }
+    const actualizado = await proveedorModel.update(req.params.id, { nombre, contacto, telefono });
+    if (!actualizado) {
+      return res.status(404).json({ error: 'Proveedor no encontrado o inactivo' });
+    }
+    res.json({ mensaje: 'Proveedor actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el proveedor' });
+  }
+}
+
+async function eliminar(req, res) {
+  try {
+    const eliminado = await proveedorModel.darDeBaja(req.params.id);
+    if (!eliminado) {
+      return res.status(404).json({ error: 'Proveedor no encontrado' });
+    }
+    res.json({ mensaje: 'Proveedor dado de baja correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al dar de baja el proveedor' });
+  }
+}
+
+module.exports = { listar, obtenerPorId, crear, actualizar, eliminar };
