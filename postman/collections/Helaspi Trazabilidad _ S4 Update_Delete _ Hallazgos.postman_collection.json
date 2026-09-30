@@ -1,0 +1,2725 @@
+{
+  "info": {
+    "_postman_id": "fcd8d0cc-a566-4b9f-b814-46305444b13b",
+    "name": "Helaspi Trazabilidad — S4 Update/Delete + Hallazgos",
+    "description": "Batería de pruebas API del PP2 (Sistema de Trazabilidad por QR, Helaspi).\n\nUso: 1) backend corriendo; 2) ajustar variables baseUrl/adminEmail/adminPassword; 3) Run collection en orden.\nCarpetas 00–04: deben pasar todas. Carpeta 05: pruebas del comportamiento correcto que hoy fallan (hallazgos).\nCada corrida crea datos nuevos con un sufijo único; no requiere limpiar la BD.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Preparación (login y usuarios de prueba)",
+      "item": [
+        {
+          "name": "00.1 Login supervisión (usuario semilla)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('sufijo', Date.now().toString());"
+                ],
+                "id": "2f2353c1-c8d3-488e-ad2d-ecd09b420429"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve token', () => pm.expect(pm.response.json().token).to.be.a('string'));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('tokenSup', pm.response.json().token);"
+                ],
+                "id": "e8c574f0-5c0d-4796-8f3d-908daaae0832"
+              }
+            }
+          ],
+          "id": "913548e3-51a0-4010-81a7-e28f6e9bdec2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.2 Crear usuario Logística",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idLog', pm.response.json().id_usuario);"
+                ],
+                "id": "537f4e89-64c1-4a93-ae7c-f31288bee579"
+              }
+            }
+          ],
+          "id": "6ec86992-12fb-4d46-a8da-bc63c7f42c93",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test Logística\",\n  \"email\": \"log_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\",\n  \"rol\": \"logistica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.3 Crear usuario Calidad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idCal', pm.response.json().id_usuario);"
+                ],
+                "id": "2d6a5b54-6496-46a3-86ff-bf20046edc7c"
+              }
+            }
+          ],
+          "id": "e1cf4c54-421a-498f-bd58-ab2efeafe4ed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test Calidad\",\n  \"email\": \"cal_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.4 Login Logística",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('tokenLog', pm.response.json().token);"
+                ],
+                "id": "5f403c0d-84b6-43d1-8bd6-c4bb25055973"
+              }
+            }
+          ],
+          "id": "0ba5ccb9-46c9-4bcc-ab80-32e4f842b397",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"log_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.5 Login Calidad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('tokenCal', pm.response.json().token);"
+                ],
+                "id": "c1eac765-aa2c-4a2c-a93d-1bc788457d3e"
+              }
+            }
+          ],
+          "id": "50e5c737-a7af-47b4-9a3a-f5d32b4ecebc",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cal_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "347500d1-3a5b-48fc-9387-96a91c4edded",
+      "description": "Genera un sufijo único por corrida, hace login con el usuario semilla y crea un usuario de cada rol para probar permisos."
+    },
+    {
+      "name": "01 Proveedor — Update / Delete",
+      "item": [
+        {
+          "name": "01.1 Crear proveedor A (Calidad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idProv', pm.response.json().id_proveedor);"
+                ],
+                "id": "09fc708f-103b-4f82-8e74-b9c849d2bf39"
+              }
+            }
+          ],
+          "id": "e6d736db-68a6-4fe0-8096-0dc02932ed2b",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lácteos del Sur {{sufijo}}\",\n  \"contacto\": \"Ana Pérez\",\n  \"telefono\": \"3533-400100\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.2 PUT OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "25e3874f-9cfc-4f4d-aeaa-100be17b8d56"
+              }
+            }
+          ],
+          "id": "ad9ea69c-3e47-4ba7-9d75-0738ac3acfe2",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lácteos del Sur SRL {{sufijo}}\",\n  \"contacto\": \"Ana Pérez\",\n  \"telefono\": \"3533-400200\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.3 GET verifica cambio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Nombre actualizado', () => pm.expect(pm.response.json().nombre).to.include('SRL'));"
+                ],
+                "id": "08d63aea-49bb-4286-bf0d-782db6939934"
+              }
+            }
+          ],
+          "id": "5a208ffc-1166-4acf-9265-fe1fe5ceb9fe",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.4 PUT sin nombre → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ],
+                "id": "d8adb8ee-4d51-4e95-b242-6aa4d93f5239"
+              }
+            }
+          ],
+          "id": "3444f49f-cea2-484b-bc19-101d9c43a6d3",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contacto\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.5 PUT inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "b6ec7b4d-8e0e-49d1-a319-f5f01c5eacf0"
+              }
+            }
+          ],
+          "id": "9ed0e32d-ef58-465f-b772-7d30f0d25e63",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.6 PUT sin token → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ],
+                "id": "6c075a2c-27d2-4741-9a94-b8312ed397f3"
+              }
+            }
+          ],
+          "id": "b8444a7b-3bfa-4c65-9959-bce0e5a8b0f0",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.7 PUT con rol Logística → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "83781126-b2b0-448c-80bd-ab20b7721300"
+              }
+            }
+          ],
+          "id": "b982a972-4c17-4008-aed5-e75b3dec15df",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.8 DELETE con rol Logística → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "1330df71-4d2d-4b9e-bff6-5868d93d4bda"
+              }
+            }
+          ],
+          "id": "fe718df6-9bd5-4fc0-b80b-f70bd2c14f63",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProv}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProv}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.9 Crear proveedor B (para baja)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idProvB', pm.response.json().id_proveedor);"
+                ],
+                "id": "4d7359d3-e387-4034-ac7d-9aad47b43cc0"
+              }
+            }
+          ],
+          "id": "ff49778b-8dd8-4a03-afd3-1e0528d0a9fc",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Proveedor Baja {{sufijo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.10 DELETE OK (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "d89d618c-6ee5-4d8b-b8e0-b0252536ff4b"
+              }
+            }
+          ],
+          "id": "bf6ecf7b-c8c7-49a8-8da3-f4669141cb1a",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProvB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProvB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.11 GET dado de baja → activo=false",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Se conserva con activo=false', () => pm.expect(pm.response.json().activo).to.eql(false));"
+                ],
+                "id": "d38cdeaf-bcda-4738-b414-25d0101ef479"
+              }
+            }
+          ],
+          "id": "b976a30a-546d-4959-8bf9-d0a8e4b1bd31",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProvB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProvB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.12 PUT sobre dado de baja → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "9cdd563e-bacc-4b16-a706-1c19bef36a3b"
+              }
+            }
+          ],
+          "id": "30ab8252-12de-4887-ae06-e8b3cee01784",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProvB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProvB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.13 DELETE inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "d3fdf57b-23e9-4d14-95cd-00afac0c8904"
+              }
+            }
+          ],
+          "id": "2f15fefb-5015-42d1-96a0-4cec6ed6d8c7",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "1439a1f4-870e-45a3-9fe9-db6d5d527fc2",
+      "description": "Roles con permiso: calidad, supervision. DELETE = baja lógica (activo=false)."
+    },
+    {
+      "name": "02 Lote de Producción — Update / Delete",
+      "item": [
+        {
+          "name": "02.1 Crear lote A (Logística)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idLote', pm.response.json().id_lote_produccion);"
+                ],
+                "id": "6c4b7e61-e384-436c-b188-5ee9101782da"
+              }
+            }
+          ],
+          "id": "8ba2848a-343a-405f-a2e3-fd6dfcb9fd09",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_lote\": \"L-{{sufijo}}-A\",\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de dulce de leche\",\n  \"cantidad_producida\": 120,\n  \"unidad_medida\": \"kg\",\n  \"id_usuario_responsable\": \"{{idLog}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.2 PUT OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "c277f152-7f15-4928-bc85-ca9254c46eeb"
+              }
+            }
+          ],
+          "id": "2dccee49-bd9f-4a32-a78b-4ba5d29166b3",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de dulce de leche granizado\",\n  \"cantidad_producida\": 150,\n  \"unidad_medida\": \"kg\",\n  \"estado\": \"en_proceso\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.3 GET verifica cambio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cantidad actualizada', () => pm.expect(Number(pm.response.json().cantidad_producida)).to.eql(150));"
+                ],
+                "id": "7eb4dc87-cab8-4d91-a7cd-cd303722fa98"
+              }
+            }
+          ],
+          "id": "288dfbc9-9cb4-4169-a002-a635dc18ff97",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.4 PUT sin producto → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ],
+                "id": "5db2ec97-fb7f-4385-bd34-bff6eb8d26cb"
+              }
+            }
+          ],
+          "id": "b0d0040f-07a7-4a46-a806-2a33370e7c0e",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.5 PUT estado inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ],
+                "id": "687a358c-5b93-498a-a1f8-5cfd4a732bf3"
+              }
+            }
+          ],
+          "id": "57199ce1-bd01-4ce5-959d-05dc1dfcf113",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"X\",\n  \"estado\": \"cerrado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.6 PUT inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "5e8a78d2-778c-4327-9b59-8c7cd1a5e6b9"
+              }
+            }
+          ],
+          "id": "7aea3c2a-6a7a-486b-b23d-9bd485e8084b",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.7 PUT con rol Calidad → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "8ddb5e14-2120-4e6e-b0a5-e49f622cbde0"
+              }
+            }
+          ],
+          "id": "7df127d2-4987-42d6-9f75-5ee91267f308",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.8 Crear lote B (para baja)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idLoteB', pm.response.json().id_lote_produccion);"
+                ],
+                "id": "3993059b-d549-499e-b853-1140ad1c5dca"
+              }
+            }
+          ],
+          "id": "46b881c0-efde-4f48-82ca-8da9f19e1dff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_lote\": \"L-{{sufijo}}-B\",\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de limón\",\n  \"id_usuario_responsable\": \"{{idLog}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.9 DELETE con rol Calidad → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "6562acfd-748d-48a2-b6fd-156d0d9c6d6e"
+              }
+            }
+          ],
+          "id": "72a20e31-0e21-4ed6-abd9-d61db0075344",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLoteB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLoteB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.10 DELETE OK (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "70735526-5fc1-438f-a425-cb672a0dbbc0"
+              }
+            }
+          ],
+          "id": "5518ec7a-213a-483e-a99d-b19c755ec5b4",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLoteB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLoteB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.11 GET dado de baja → activo=false",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Se conserva con activo=false', () => pm.expect(pm.response.json().activo).to.eql(false));"
+                ],
+                "id": "1fe93d15-a744-438a-8deb-2d974d1c9318"
+              }
+            }
+          ],
+          "id": "83a746b6-70fc-4c59-ac65-ea5164c0f5c0",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLoteB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLoteB}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "1db07a7e-defe-4368-93a5-be7bceb9ec48",
+      "description": "Roles con permiso: logistica, supervision."
+    },
+    {
+      "name": "03 Materia Prima — Update / Delete",
+      "item": [
+        {
+          "name": "03.1 Crear MP A (Calidad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idMp', pm.response.json().id_materia_prima);"
+                ],
+                "id": "6cfa16ab-f71e-4c3f-bd84-a393bf04b650"
+              }
+            }
+          ],
+          "id": "a5abbc27-053a-4a85-bbb4-fdfe86fc796a",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Leche entera\",\n  \"codigo_qr\": \"QR-{{sufijo}}-A\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProv}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.2 PUT OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "92281a8e-c0ee-4766-8366-7eb913b43b88"
+              }
+            }
+          ],
+          "id": "0708175d-046f-4537-84a1-b700668d5bd6",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Leche entera pasteurizada\",\n  \"codigo_qr\": \"QR-{{sufijo}}-A\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProv}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.3 GET verifica cambio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Nombre actualizado', () => pm.expect(pm.response.json().nombre).to.include('pasteurizada'));"
+                ],
+                "id": "68874d19-4e21-4703-9f4a-a748739d2f4c"
+              }
+            }
+          ],
+          "id": "408ee368-fc37-426a-8cab-e03b84cc6119",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.4 PUT faltan campos → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ],
+                "id": "b7cfb75a-3461-4a86-9fc6-55b1779fc1fc"
+              }
+            }
+          ],
+          "id": "75fa8449-c93f-4306-b91f-9bf6524aaa9d",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.5 PUT inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "1b9972cf-4f6c-4037-8760-d7f118b270be"
+              }
+            }
+          ],
+          "id": "7909b638-0130-49e8-b147-3207c2db1a76",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProv}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.6 PUT con rol Logística → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "c67b17f1-8f95-44b7-8ec9-fc3d0601f78a"
+              }
+            }
+          ],
+          "id": "d989bcd8-1d3c-40f0-a702-180e0cc3c6a2",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProv}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.7 Crear MP B (para baja)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idMpB', pm.response.json().id_materia_prima);"
+                ],
+                "id": "31648f90-4bda-48bb-bc6f-877bf843c523"
+              }
+            }
+          ],
+          "id": "146b6757-7ace-4377-9926-7c7d91d36b25",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Azúcar\",\n  \"codigo_qr\": \"QR-{{sufijo}}-B\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProv}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.8 DELETE con rol Logística → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ],
+                "id": "4f29ad2b-b6b3-4b66-83fa-832b8bb285e2"
+              }
+            }
+          ],
+          "id": "85aecd5b-5caf-479f-ad83-fdf88cc17c03",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMpB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMpB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.9 DELETE OK (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "6c991f2b-5f92-41db-b371-bea51aa5b384"
+              }
+            }
+          ],
+          "id": "b9d86368-1b04-4026-ab3f-88349ac8422a",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMpB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMpB}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.10 GET dada de baja → activo=false",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Se conserva con activo=false', () => pm.expect(pm.response.json().activo).to.eql(false));"
+                ],
+                "id": "dfbb9224-6cfa-4a80-8578-028fb745f5db"
+              }
+            }
+          ],
+          "id": "5cd67906-cd87-42ae-8d49-e142a5f168cf",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMpB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMpB}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "7a19eee3-8398-44bc-921d-b8ac71a15775",
+      "description": "Roles con permiso: calidad, supervision."
+    },
+    {
+      "name": "04 Usuario — Update / Delete",
+      "item": [
+        {
+          "name": "04.1 PUT OK (Supervisión edita a Calidad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "d282e64f-faf1-439f-a418-b28c37b8d54c"
+              }
+            }
+          ],
+          "id": "87355f6e-5081-471c-ba26-b03bea575869",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test Calidad Editado\",\n  \"email\": \"cal_{{sufijo}}@helaspi.com\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idCal}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idCal}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.2 PUT rol inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ],
+                "id": "34d4a3e6-5d82-4796-abb3-d5703864d2b3"
+              }
+            }
+          ],
+          "id": "86d0f297-29e3-4269-a130-76fe792f0feb",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"email\": \"cal_{{sufijo}}@helaspi.com\",\n  \"rol\": \"gerente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idCal}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idCal}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.3 PUT email duplicado → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));"
+                ],
+                "id": "2fa52fae-d32f-4bfb-8e6d-acb15f73e947"
+              }
+            }
+          ],
+          "id": "d775372c-b622-4d92-a4ce-81e511d77eda",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"email\": \"{{adminEmail}}\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idCal}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idCal}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.4 PUT inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+                ],
+                "id": "726addc2-a5b1-43bd-adc0-ef5e8fd7896c"
+              }
+            }
+          ],
+          "id": "9861bde0-253c-4a6a-8a82-7bdc42785807",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"email\": \"x_{{sufijo}}@helaspi.com\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.5 PUT sin token → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ],
+                "id": "a3af01a8-aff7-4dfe-a51d-9b78e948b6f8"
+              }
+            }
+          ],
+          "id": "cb6ef89c-4b6b-4c82-965a-cb97114ced89",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"email\": \"x@x.com\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idCal}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idCal}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.6 Crear usuario temporal (para baja)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idTmp', pm.response.json().id_usuario);"
+                ],
+                "id": "ce624056-3550-4132-a609-55b9b6bd7748"
+              }
+            }
+          ],
+          "id": "0ded69e1-2479-4cc6-a5eb-c112b3f2800b",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Temporal\",\n  \"email\": \"tmp_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\",\n  \"rol\": \"calidad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.7 DELETE OK (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "93059b6f-257c-43ae-8d4f-28cc9c1bdfa6"
+              }
+            }
+          ],
+          "id": "a6d1cefc-b76b-400f-a2b7-1cdd3b394e6a",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idTmp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idTmp}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.8 Login de usuario dado de baja → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ],
+                "id": "af5058a9-0a73-453e-a79e-b848d1f87eca"
+              }
+            }
+          ],
+          "id": "f6768dae-89c4-44dd-940b-c8dda2eb73b4",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tmp_{{sufijo}}@helaspi.com\",\n  \"password\": \"Test1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d44c415e-10f4-4d4f-9c5d-a67d73b45c18",
+      "description": "Operaciones de administración hechas con Supervisión."
+    },
+    {
+      "name": "05 Hallazgos (fallan hasta corregir el código)",
+      "item": [
+        {
+          "name": "05.1 [H1] Logística se sube a Supervisión → debería 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Debe rechazarse (esperado 403, cualquier 4xx)', () => {",
+                  "  pm.expect(pm.response.code, 'La API aceptó la operación: BUG').to.be.within(400, 499);",
+                  "});"
+                ],
+                "id": "0effd31b-1685-4e32-97df-2c5a8f1b836f"
+              }
+            }
+          ],
+          "id": "fcc158bf-463d-44a9-aacf-946a99cc6d73",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Test Logística\",\n  \"email\": \"log_{{sufijo}}@helaspi.com\",\n  \"rol\": \"supervision\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idLog}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idLog}}"
+              ]
+            },
+            "description": "Escalada de privilegios: un usuario puede cambiarse su propio rol."
+          },
+          "response": []
+        },
+        {
+          "name": "05.2 [H1] Calidad da de baja a otro usuario → debería 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Debe rechazarse (esperado 403, cualquier 4xx)', () => {",
+                  "  pm.expect(pm.response.code, 'La API aceptó la operación: BUG').to.be.within(400, 499);",
+                  "});"
+                ],
+                "id": "7e0dfeda-c28e-4155-bf3f-1325c62931a7"
+              }
+            }
+          ],
+          "id": "c3315d5a-25f5-441d-9c38-e8025741770f",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{idLog}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{idLog}}"
+              ]
+            },
+            "description": "usuarioRoutes.js no usa verificarRol: cualquier usuario logueado administra usuarios."
+          },
+          "response": []
+        },
+        {
+          "name": "05.3 (prep) Crear lote C",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code < 300) pm.collectionVariables.set('idLoteC', pm.response.json().id_lote_produccion);"
+                ],
+                "id": "5feca7fa-8359-430a-a00d-ccfbf85346d7"
+              }
+            }
+          ],
+          "id": "f7c2d57a-c761-4821-8c4b-5fa18c7c93af",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo_lote\": \"L-{{sufijo}}-C\",\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de frutilla\",\n  \"id_usuario_responsable\": \"{{idLog}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.4 (prep) Asociar MP A al lote A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "df40b90f-d087-4544-904e-d62561d72d24"
+              }
+            }
+          ],
+          "id": "743a468b-533d-4e8e-9137-ed7bba200111",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_lote_produccion\": \"{{idLote}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}/asociar-lote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}",
+                "asociar-lote"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.5 [H2] Re-asociar MP ya utilizada al lote C → debería 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Debe rechazarse (esperado 409, cualquier 4xx)', () => {",
+                  "  pm.expect(pm.response.code, 'La API aceptó la operación: BUG').to.be.within(400, 499);",
+                  "});"
+                ],
+                "id": "af141179-2d21-4d76-b481-88a5d9a9571b"
+              }
+            }
+          ],
+          "id": "4f2a9d2d-e730-4202-ba73-b98172dbd2be",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenSup}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_lote_produccion\": \"{{idLoteC}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}/asociar-lote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}",
+                "asociar-lote"
+              ]
+            },
+            "description": "asociarALote no controla estado='disponible': una MP usada se 'muda' de lote y se pierde la trazabilidad."
+          },
+          "response": []
+        },
+        {
+          "name": "05.6 [H3] Editar proveedor de MP utilizada → debería 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Debe rechazarse (esperado 409, cualquier 4xx)', () => {",
+                  "  pm.expect(pm.response.code, 'La API aceptó la operación: BUG').to.be.within(400, 499);",
+                  "});"
+                ],
+                "id": "44766fdf-6788-47c5-8263-0c7f46192796"
+              }
+            }
+          ],
+          "id": "6d0ac97e-08d6-4cdd-908a-aee7f30b4430",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Leche entera pasteurizada\",\n  \"codigo_qr\": \"QR-{{sufijo}}-A\",\n  \"fecha_ingreso\": \"2026-09-29\",\n  \"id_proveedor\": \"{{idProvB}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materia-prima/{{idMp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "materia-prima",
+                "{{idMp}}"
+              ]
+            },
+            "description": "update solo controla activo=true; permite reescribir el origen de una MP ya consumida (además, a un proveedor dado de baja)."
+          },
+          "response": []
+        },
+        {
+          "name": "05.7 (prep) Finalizar lote A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ],
+                "id": "e4921ef7-c89e-4abb-84b2-8d2a6656b59f"
+              }
+            }
+          ],
+          "id": "5fc8bb31-4a26-4641-ac2f-2c68167c1b46",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de dulce de leche granizado\",\n  \"cantidad_producida\": 150,\n  \"unidad_medida\": \"kg\",\n  \"estado\": \"finalizado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.8 [H4] Editar lote finalizado sin enviar estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Request ejecutada', () => pm.expect(pm.response.code).to.be.below(500));"
+                ],
+                "id": "f024825c-bef2-4383-9ef8-7d36351bbeec"
+              }
+            }
+          ],
+          "id": "52aa5010-c8ca-4a3d-87fd-d5455eecf63a",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha_produccion\": \"2026-09-30\",\n  \"producto\": \"Helado de dulce de leche granizado\",\n  \"cantidad_producida\": 151,\n  \"unidad_medida\": \"kg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.9 [H4] El lote debe seguir 'finalizado'",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"estado sigue 'finalizado'\", () => pm.expect(pm.response.json().estado).to.eql('finalizado'));"
+                ],
+                "id": "cef521ae-dbfa-4af0-900e-d90a81eb8ed3"
+              }
+            }
+          ],
+          "id": "0395489e-bffa-4e15-b242-3721bf696d0f",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenLog}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lotes-produccion/{{idLote}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lotes-produccion",
+                "{{idLote}}"
+              ]
+            },
+            "description": "El controller hace estado || 'en_proceso': omitir el campo reabre el lote."
+          },
+          "response": []
+        },
+        {
+          "name": "05.10 [H5] DELETE repetido de proveedor ya dado de baja → debería 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Debe rechazarse (esperado 404, cualquier 4xx)', () => {",
+                  "  pm.expect(pm.response.code, 'La API aceptó la operación: BUG').to.be.within(400, 499);",
+                  "});"
+                ],
+                "id": "d88c9edf-977b-4754-893d-3bbcacf894f4"
+              }
+            }
+          ],
+          "id": "5a75c1bd-69e2-4ce8-bcdf-a12e5ab44ff8",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCal}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/proveedores/{{idProvB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "proveedores",
+                "{{idProvB}}"
+              ]
+            },
+            "description": "darDeBaja no filtra activo=true: responde 200 aunque ya estaba dado de baja (inconsistente con PUT, que da 404)."
+          },
+          "response": []
+        }
+      ],
+      "id": "22f6083f-d9e3-49e4-96f3-da5f99fe57a6",
+      "description": "Prueba del comportamiento CORRECTO. Si falla (❌), el bug existe; tras corregir el código debe pasar (✅). Van al final porque algunas modifican datos de prueba."
+    }
+  ],
+  "variable": [
+    {
+      "id": "30f94714-5e4f-4d09-83cd-b8e83db96cd6",
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "id": "537ba6e5-b0e3-4a25-84a9-2a01f9cd8c5c",
+      "key": "adminEmail",
+      "value": "admin@helaspi.com"
+    },
+    {
+      "id": "2f34ca8d-db53-43d6-800c-c8636383d33a",
+      "key": "adminPassword",
+      "value": "helaspi2026"
+    },
+    {
+      "id": "5a8bcbf9-44f8-4943-a135-900d1bed5958",
+      "key": "sufijo",
+      "value": ""
+    },
+    {
+      "id": "317fb9ae-9434-401d-9a83-8cd068964caf",
+      "key": "tokenSup",
+      "value": ""
+    },
+    {
+      "id": "03966c6b-580f-4a43-a577-2f2f9bb61c95",
+      "key": "tokenLog",
+      "value": ""
+    },
+    {
+      "id": "53988cb6-fbc3-42e0-8f22-57f627d40578",
+      "key": "tokenCal",
+      "value": ""
+    },
+    {
+      "id": "92e0829f-b18e-462c-bcbf-2f947633b852",
+      "key": "idLog",
+      "value": ""
+    },
+    {
+      "id": "c2562682-86e8-4d04-9651-5928c2e330c9",
+      "key": "idCal",
+      "value": ""
+    },
+    {
+      "id": "168d00af-3092-4362-be1d-d642f311437e",
+      "key": "idTmp",
+      "value": ""
+    },
+    {
+      "id": "a3220f42-5c89-4025-a9db-546ba3e61228",
+      "key": "idProv",
+      "value": ""
+    },
+    {
+      "id": "c8eb9a9d-4827-4a6c-890d-b2720a8c2876",
+      "key": "idProvB",
+      "value": ""
+    },
+    {
+      "id": "9a4ddb9e-aae5-4bb4-bfda-2ccc5bdec2cc",
+      "key": "idLote",
+      "value": ""
+    },
+    {
+      "id": "ecf53fd4-3a09-41cc-9645-44543dbc4e09",
+      "key": "idLoteB",
+      "value": ""
+    },
+    {
+      "id": "b9c01921-403f-4e48-9256-2314a5712f5f",
+      "key": "idLoteC",
+      "value": ""
+    },
+    {
+      "id": "3e8015b9-a215-4b29-b473-c3550a448a09",
+      "key": "idMp",
+      "value": ""
+    },
+    {
+      "id": "79e32d62-e97d-4814-956f-d3565f1344c0",
+      "key": "idMpB",
+      "value": ""
+    }
+  ]
+}
