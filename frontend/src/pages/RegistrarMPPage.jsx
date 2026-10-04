@@ -51,42 +51,45 @@ function RegistrarMPPage() {
 };
 
   return (
-    <div>
+    <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '0 1.5rem' }}>
       <h2>Registrar Materia Prima</h2>
       {mensaje && <p style={{ color: 'green' }}>{mensaje}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre</label>
-          <input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-        </div>
-        <div>
-          <label>Fecha de ingreso</label>
-          <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} required />
-        </div>
-        <div>
-          <label>Proveedor</label>
-          <select value={idProveedor} onChange={(e) => setIdProveedor(e.target.value)} required>
-            <option value="">Seleccionar...</option>
-            {proveedores.map((p) => (
-              <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit">Registrar</button>
-      </form>
-      {mpCreada && (
-  <div style={{ marginTop: '20px' }}>
-    <h3>Etiqueta QR – {mpCreada.codigo}</h3>
-    <QRCodeCanvas
-      id="qr-mp"
-      value={`${import.meta.env.VITE_APP_URL}/trazabilidad/adelante?id=${mpCreada.id}`}
-      size={200}
-      includeMargin
-    />
-    <div><button onClick={descargarQR}>Descargar etiqueta</button></div>
-  </div>
-)}
+      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <form onSubmit={handleSubmit} style={{ margin: 0, flex: '1 1 320px' }}>
+          <div>
+            <label>Nombre</label>
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+          </div>
+          <div>
+            <label>Fecha de ingreso</label>
+            <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} required />
+          </div>
+          <div>
+            <label>Proveedor</label>
+            <select value={idProveedor} onChange={(e) => setIdProveedor(e.target.value)} required>
+              <option value="">Seleccionar...</option>
+              {proveedores.map((p) => (
+                <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>
+              ))}
+            </select>
+          </div>
+          <button type="submit">Registrar</button>
+        </form>
+
+        {mpCreada && (
+          <div style={{ flex: '1 1 260px', background: '#fff', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)', padding: '1.5rem 2rem', textAlign: 'center' }}>
+            <h3>Etiqueta QR – {mpCreada.codigo}</h3>
+            <QRCodeCanvas
+              id="qr-mp"
+              value={`${import.meta.env.VITE_APP_URL}/trazabilidad/adelante?id=${mpCreada.id}`}
+              size={200}
+              includeMargin
+            />
+            <div style={{ marginTop: '1rem' }}><button onClick={descargarQR}>Descargar etiqueta</button></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

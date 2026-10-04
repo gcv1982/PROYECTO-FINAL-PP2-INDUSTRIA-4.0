@@ -19,6 +19,7 @@ function Navbar() {
       <Link to="/materia-prima/nueva">Registrar MP</Link>
       <Link to="/lote/nuevo">Crear lote</Link>
       <Link to="/lote/asociar">Asociar a lote</Link>
+      <Link to="/reportes">Reportes</Link>
       <span style={{ marginLeft: 'auto' }}>
         {usuario.nombre} ({usuario.rol})
       </span>

@@ -11,6 +11,7 @@ import AsociarLotePage from './pages/AsociarLotePage';
 import TrazabilidadAdelantePage from './pages/TrazabilidadAdelantePage';
 import TrazabilidadAtrasPage from './pages/TrazabilidadAtrasPage';
 import UsuariosPage from './pages/UsuariosPage';
+import ReportesPage from './pages/ReportesPage';
 
 function HomeRedirect() {
   const { usuario } = useAuth();
@@ -69,6 +70,15 @@ function App() {
           element={
             <RutaProtegida rolesPermitidos={['calidad', 'logistica', 'supervision']}>
               <TrazabilidadAtrasPage />
+            </RutaProtegida>
+          }
+        />
+
+        <Route
+          path="/reportes"
+          element={
+            <RutaProtegida rolesPermitidos={['calidad', 'logistica', 'supervision']}>
+              <ReportesPage />
             </RutaProtegida>
           }
         />

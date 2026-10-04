@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { formatFecha } from '../utils/formatFecha';
 
 function TrazabilidadAdelantePage() {
   const [id, setId] = useState('');
@@ -55,7 +56,7 @@ useEffect(() => {
           <p>Proveedor: {resultado.materia_prima.proveedor.nombre} — QR: {resultado.materia_prima.codigo_qr}</p>
           <h3>Lote de producción</h3>
           {resultado.lote ? (
-            <p>{resultado.lote.codigo_lote} — {resultado.lote.producto} ({resultado.lote.fecha_produccion})</p>
+            <p>{resultado.lote.codigo_lote} — {resultado.lote.producto} ({formatFecha(resultado.lote.fecha_produccion)})</p>
           ) : (
             <p>Todavía no fue asociada a ningún lote de producción.</p>
           )}
