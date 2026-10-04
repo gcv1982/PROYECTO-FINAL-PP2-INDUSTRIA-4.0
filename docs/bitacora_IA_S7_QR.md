@@ -32,11 +32,11 @@ Elegí la **Opción A** por plazo (S7 ya estaba atrasada) y porque reutiliza la 
 - Al pegar los 3 archivos generados por la IA en el proyecto, se encontraron y corrigieron 3 errores antes de poder probarlos: en `RegistrarMPPage.jsx` se guardaba el resultado del QR (`setMpCreada`) antes de que existieran los datos de la respuesta del backend; en `TrazabilidadAdelantePage.jsx` faltaba el `import` de `api`; y `api.js` todavía tenía la URL del backend fija en `localhost` en vez de leerla de `VITE_API_URL`.
 
 ## Qué acepté / modifiqué / cómo lo probé
-- Acepté: _(completar)_
-- Modifiqué: _(completar — p. ej. nombres, estilos, algo que no funcionó tal cual)_
-- Prueba: registré la MP _(nombre/ID)_ → se mostró el QR → descargué el PNG → lo escaneé con el celular en la misma red → se abrió la trazabilidad de esa MP: _(OK / error encontrado y cómo lo resolví)_
+- Acepté: la opción A (QR con URL + cámara del celular) y la estructura del código propuesto.
+- Modifiqué: integré el código a mano en mis archivos en lugar de reemplazarlos completos.
+- Prueba: registré la MP "Crispines" (ID 8) → se mostró el QR → descargué el PNG → lo escaneé con el celular en la misma red → se abrió la trazabilidad de esa MP: OK.
 - Evidencias: `tests/evidencias_s7/01_qr_generado.jpg` (PC, MP registrada con QR en pantalla), `tests/evidencias_s7/02_celular_trazabilidad.jpg` (celular, trazabilidad abierta al escanear), `tests/evidencias_s7/03_etiqueta_QR_MP-8.png` (etiqueta PNG descargada)
-- Qué aprendí: _(completar con tus palabras — se pregunta en la defensa)_
+- Qué aprendí: aprendí a generar un código QR para cada materia prima y a seguirla dentro de la planta: al escanear el QR se ve de qué proveedor vino y en qué lote de producción se usó.
 
 ## Limitaciones conocidas
 - La lectura depende de que el celular esté en la misma red que la PC y tenga sesión iniciada (la ruta está protegida por JWT).
