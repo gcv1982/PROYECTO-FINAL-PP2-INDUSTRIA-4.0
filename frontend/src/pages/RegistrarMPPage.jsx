@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { QRCodeCanvas } from 'qrcode.react';
 
 function RegistrarMPPage() {
   const [proveedores, setProveedores] = useState([]);
@@ -8,6 +9,8 @@ function RegistrarMPPage() {
   const [idProveedor, setIdProveedor] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
+  const [mpCreada, setMpCreada] = useState(null);
+
 
   useEffect(() => {
     api.get('/proveedores')
@@ -31,6 +34,7 @@ function RegistrarMPPage() {
         id_proveedor: idProveedor,
       });
       setMensaje(`Materia prima registrada. ID: ${data.id_materia_prima} — QR: ${codigoQr}`);
+      setMpCreada({ id: data.id_materia_prima, codigo: codigoQr });
       setNombre('');
       setFechaIngreso('');
       setIdProveedor('');
@@ -38,6 +42,13 @@ function RegistrarMPPage() {
       setError(err.response?.data?.error || 'Error al registrar la materia prima');
     }
   };
+      const descargarQR = () => {
+  const canvas = document.getElementById('qr-mp');
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = `QR_${mpCreada.codigo}.png`;
+  link.click();
+};
 
   return (
     <div>
@@ -64,6 +75,18 @@ function RegistrarMPPage() {
         </div>
         <button type="submit">Registrar</button>
       </form>
+      {mpCreada && (
+  <div style={{ marginTop: '20px' }}>
+    <h3>Etiqueta QR – {mpCreada.codigo}</h3>
+    <QRCodeCanvas
+      id="qr-mp"
+      value={`${import.meta.env.VITE_APP_URL}/trazabilidad/adelante?id=${mpCreada.id}`}
+      size={200}
+      includeMargin
+    />
+    <div><button onClick={descargarQR}>Descargar etiqueta</button></div>
+  </div>
+)}
     </div>
   );
 }

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 
 function TrazabilidadAdelantePage() {
@@ -6,17 +8,30 @@ function TrazabilidadAdelantePage() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState('');
 
-  const buscar = async (e) => {
-    e.preventDefault();
-    setError('');
-    setResultado(null);
-    try {
-      const { data } = await api.get(`/materia-prima/${id}/trazabilidad`);
-      setResultado(data);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Error al buscar');
-    }
-  };
+ const consultar = async (idBuscado) => {
+  setError('');
+  setResultado(null);
+  try {
+    const { data } = await api.get(`/materia-prima/${idBuscado}/trazabilidad`);
+    setResultado(data);
+  } catch (err) {
+    setError(err.response?.data?.error || 'Error al buscar');
+  }
+};
+
+const buscar = (e) => {
+  e.preventDefault();
+  consultar(id);
+};
+
+const [params] = useSearchParams();
+useEffect(() => {
+  const idQR = params.get('id');
+  if (idQR) {
+    setId(idQR);
+    consultar(idQR);
+  }
+}, []);
 
   return (
     <div>
