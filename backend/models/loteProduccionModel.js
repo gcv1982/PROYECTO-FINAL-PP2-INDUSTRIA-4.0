@@ -56,7 +56,7 @@ async function update(id, { fecha_produccion, producto, cantidad_producida, unid
 // Baja lógica: el lote permanece en la BD para no romper la trazabilidad de las materias primas ya asociadas
 async function darDeBaja(id) {
   const { rows } = await pool.query(
-    `UPDATE LoteProduccion SET activo = false WHERE id_lote_produccion = $1 RETURNING id_lote_produccion`,
+    `UPDATE LoteProduccion SET activo = false WHERE id_lote_produccion = $1 AND activo = true RETURNING id_lote_produccion`,
     [id]
   );
   return rows[0];

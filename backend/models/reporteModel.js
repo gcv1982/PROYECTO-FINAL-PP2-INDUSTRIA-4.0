@@ -34,7 +34,7 @@ async function mpPorProveedor(filtros) {
     `SELECT p.nombre AS proveedor, COUNT(*)::int AS total
      FROM MateriaPrima mp
      JOIN Proveedor p ON p.id_proveedor = mp.id_proveedor
-     WHERE ${where}
+     WHERE ${where} AND p.activo = true
      GROUP BY p.nombre
      ORDER BY total DESC`,
     params

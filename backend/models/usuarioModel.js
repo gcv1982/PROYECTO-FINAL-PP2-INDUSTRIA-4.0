@@ -48,7 +48,7 @@ async function update(id, { nombre, email, rol }) {
 // Baja lógica: no se borra la fila, se marca activo = false (preserva trazabilidad)
 async function darDeBaja(id) {
   const { rows } = await pool.query(
-    `UPDATE Usuario SET activo = false WHERE id_usuario = $1 RETURNING id_usuario`,
+    `UPDATE Usuario SET activo = false WHERE id_usuario = $1 AND activo = true RETURNING id_usuario`,
     [id]
   );
   return rows[0];

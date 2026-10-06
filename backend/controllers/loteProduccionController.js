@@ -63,8 +63,16 @@ async function actualizar(req, res) {
     if (estado && !['en_proceso', 'finalizado'].includes(estado)) {
       return res.status(400).json({ error: "estado debe ser 'en_proceso' o 'finalizado'" });
     }
+
+    // H4 (S9): si no viene "estado", hay que conservar el actual, no defaultear a
+    // 'en_proceso' (eso reabría un lote finalizado solo por omitir el campo).
+    const loteActual = await loteModel.getById(req.params.id);
+    if (!loteActual || !loteActual.activo) {
+      return res.status(404).json({ error: 'Lote no encontrado o inactivo' });
+    }
+
     const actualizado = await loteModel.update(req.params.id, {
-      fecha_produccion, producto, cantidad_producida, unidad_medida, estado: estado || 'en_proceso'
+      fecha_produccion, producto, cantidad_producida, unidad_medida, estado: estado || loteActual.estado
     });
     if (!actualizado) {
       return res.status(404).json({ error: 'Lote no encontrado o inactivo' });

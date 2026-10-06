@@ -37,7 +37,7 @@ async function update(id, { nombre, contacto, telefono }) {
 // Baja lógica: preserva la trazabilidad de materias primas ya asociadas a este proveedor
 async function darDeBaja(id) {
   const { rows } = await pool.query(
-    `UPDATE Proveedor SET activo = false WHERE id_proveedor = $1 RETURNING id_proveedor`,
+    `UPDATE Proveedor SET activo = false WHERE id_proveedor = $1 AND activo = true RETURNING id_proveedor`,
     [id]
   );
   return rows[0];

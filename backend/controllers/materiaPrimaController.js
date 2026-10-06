@@ -47,6 +47,17 @@ async function actualizar(req, res) {
         error: 'nombre, fecha_ingreso e id_proveedor son obligatorios'
       });
     }
+
+    // H3 (S9): una MP ya utilizada no puede editarse (proveedor/QR), porque la
+    // trazabilidad hacia atrás del lote que la usó depende de esos datos originales.
+    const materia = await materiaPrimaModel.getById(req.params.id);
+    if (!materia || !materia.activo) {
+      return res.status(404).json({ error: 'Materia prima no encontrada o inactiva' });
+    }
+    if (materia.estado === 'utilizada') {
+      return res.status(409).json({ error: 'La materia prima ya fue utilizada y no puede editarse' });
+    }
+
     const actualizado = await materiaPrimaModel.update(req.params.id, {
       nombre, codigo_qr, fecha_ingreso, id_proveedor
     });

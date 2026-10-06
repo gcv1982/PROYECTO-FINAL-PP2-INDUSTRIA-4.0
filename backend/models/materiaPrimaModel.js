@@ -49,7 +49,7 @@ async function asociarALote(id_materia_prima, id_lote_produccion) {
 // Baja lógica: preserva la trazabilidad si esta materia prima ya fue asociada a un lote
 async function darDeBaja(id) {
   const { rows } = await pool.query(
-    `UPDATE MateriaPrima SET activo = false WHERE id_materia_prima = $1 RETURNING id_materia_prima`,
+    `UPDATE MateriaPrima SET activo = false WHERE id_materia_prima = $1 AND activo = true RETURNING id_materia_prima`,
     [id]
   );
   return rows[0];
