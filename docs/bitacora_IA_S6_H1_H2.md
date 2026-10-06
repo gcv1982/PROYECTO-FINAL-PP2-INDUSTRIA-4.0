@@ -19,10 +19,10 @@
 - Corrección: 404 si la MP o el lote no existen o están inactivos; 409 si la MP ya fue utilizada o el lote está finalizado. El UPDATE incluye `estado = 'disponible'` para evitar la doble asociación simultánea.
 
 ## Qué acepté / modifiqué / cómo lo probé
-- Acepté: _(completar)_
-- Modifiqué: _(completar)_
-- Prueba: colección Postman corrida en mi entorno → resultado: _(completar con passed/failed)_
-- Qué aprendí: _(completar con tus palabras — se pregunta en la defensa)_
+- Acepté: la corrección de H1 con `verificarRol(['supervision'])` en las rutas de escritura de usuarios, y la de H2 validando estado de la MP y del lote dentro del mismo UPDATE (para que dos asociaciones simultáneas no puedan pisarse).
+- Modifiqué: restringí también la pantalla `/usuarios` del frontend a Supervisión (antes solo se protegía el backend), para que no quede un link visible que termine en 403.
+- Prueba: colección Postman corrida en mi entorno → resultado: 67 passed / 3 failed (H3, H4 y H5 — deuda planificada para S9, documentada abajo).
+- Qué aprendí: que una ruta protegida solo por `verificarToken` no alcanza cuando la acción importa por el rol (no solo por estar logueado), y que las validaciones de estado en updates concurrentes conviene ponerlas en el mismo UPDATE (con el WHERE) y no en un SELECT previo, para evitar condiciones de carrera.
 
 ## Pendiente (deuda técnica conocida, S9)
 - H3: se puede editar el proveedor/QR de una MP ya utilizada.
@@ -45,5 +45,5 @@
 - Mejora: la trazabilidad hacia atrás ahora incluye el **proveedor** y el **QR** de cada MP (antes solo el nombre), que es el objetivo del problema planteado en S1.
 
 ## Resultado de mi corrida
-- Escenario S6: _(completar: X/8 pasos OK)_
-- Colección Postman después de los cambios: _(completar: 67 passed / 3 failed esperado)_
+- Escenario S6: 8/8 pasos OK.
+- Colección Postman después de los cambios: 67 passed / 3 failed, como se esperaba (H3, H4, H5 pendientes para S9).
