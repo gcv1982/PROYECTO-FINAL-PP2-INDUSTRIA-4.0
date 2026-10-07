@@ -2,7 +2,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Asistente de IA (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2). Sección "Qué aprendí": redacción propia, corregida con IA en los puntos técnicos de H4 y H5 |
 | Objetivo | Saldar los 3 hallazgos pendientes desde S6 (H3, H4, H5) y limpiar los datos de prueba que ensuciaban el tablero de KPIs de S8 |
 | Consulta | Diagnóstico de los 3 bugs y dos alternativas para cada decisión abierta (alcance del bloqueo de H3, y cómo limpiar el tablero) |
 | Resultado | Newman: 70/70 (antes 67/70). Tablero de KPIs sin proveedores dados de baja mezclados con los reales |
@@ -22,15 +22,27 @@
 - Corrección: se agregó `AND activo = true` al WHERE en las 4 entidades (el hallazgo original solo mencionaba Proveedor, pero el mismo patrón estaba repetido en Materia Prima, Lote de Producción y Usuario, así que se corrigieron las 4 para no dejar la misma falla en otro lado).
 
 ## Limpieza del tablero de KPIs (decisión B)
-Entre seed de datos de demo (B1) y filtrar `activo = true` en la consulta (B2), elegí **B2**: se agregó `AND p.activo = true` al JOIN de `mpPorProveedor` en `backend/models/reporteModel.js`. Es un cambio de una línea y alcanza para sacar del tablero a los proveedores que quedaron dados de baja durante las pruebas (los que la colección de Postman crea y da de baja en el mismo run). Queda como limitación conocida que los proveedores de prueba que *no* se dieron de baja (los que el runner deja activos) van a seguir apareciendo — ver sección de pendientes.
+Entre seed de datos de demo (B1) y filtrar `activo = true` en la consulta (B2), elegí **B2**: se agregó `AND p.activo = true` al JOIN de `mpPorProveedor` en `backend/models/reporteModel.js`. Es un cambio de una línea y alcanza para sacar del tablero a los proveedores que quedaron dados de baja durante las pruebas (los que la colección de Postman crea y da de baja en el mismo run). Queda como limitación conocida que los proveedores de prueba que *no* se dieron de baja (los que el runner deja activos) van a seguir apareciendo — ver "Limitación conocida".
 
 ## Qué acepté / modifiqué / cómo lo probé
 - Acepté: el diagnóstico de los 3 bugs y la pista de reutilizar el patrón de H2 para H3.
 - Modifiqué: extendí la corrección de H5 a las 4 entidades en vez de solo Proveedor, porque el mismo bug estaba en los otros 3 modelos.
 - Prueba: corrí la colección de Postman con Newman (CLI) contra una instancia propia del backend con los 3 fixes aplicados → resultado: 70 passed / 0 failed, exportado a `tests/postman/resultados_s9.json`.
-- Qué aprendí: _(completar con tus palabras — se pregunta en la defensa)_
 
-## Pendiente (para esta misma semana, S9)
-- Documentación técnica (`docs/`): instalación, variables de `.env`, endpoints de la API, modelo de datos y plan de pruebas (Postman + E2E + hallazgos H1–H6).
-- Manual de usuario por rol, con capturas de datos de demo limpios.
-- Limitación conocida de B2: un proveedor de prueba que quede `activo` (no dado de baja) sigue apareciendo en el tablero; si esto molesta en la defensa, la alternativa es B1 (seed de datos de demo).
+## Qué aprendí
+
+**H5**
+- El segundo `DELETE` devolvía 200 porque el `WHERE id = $1` no tenía en cuenta si el registro ya estaba dado de baja. Encontraba la fila igual, la volvía a marcar `activo = false` y el `RETURNING` la devolvía, así que el controller respondía como si todo estuviera bien.
+- Aprendí que en una baja lógica no se borra nada, se hace un `UPDATE`. Al agregar `AND activo = true` al `WHERE`, un registro que ya fue dado de baja no cumple la condición, el `RETURNING` viene vacío, `rows[0]` queda `undefined` y el controller responde **404**. Ese es el comportamiento correcto.
+
+**H4**
+- `estado || 'en_proceso'` era peligroso porque `||` es un O lógico: si `estado` no venía en el body (`undefined`), se usaba `'en_proceso'` aunque el lote ya estuviera `finalizado`, y así se reabría sin que nadie lo pidiera.
+- Aprendí que el `DEFAULT` de una columna solo se aplica al hacer un `INSERT`, nunca en un `UPDATE`. Cuando un campo no viene en el body de una edición, lo correcto es conservar el valor actual del registro (`loteActual.estado`), no reemplazarlo por un valor fijo.
+
+**H3 y H2**
+- Una materia prima que ya está en un lote no debería poder editarse porque rompe la trazabilidad.
+- La trazabilidad exige que cada lote conserve el registro exacto de qué materias primas se usaron, de qué proveedor vinieron, con qué fecha de ingreso y con qué código QR. Si esos datos se modifican después, se pierde la capacidad de reconstruir el origen del producto y de garantizar calidad, seguridad o auditoría.
+- En otras palabras: lo que ya se registró en un lote debe quedar inmutable para que el seguimiento sea confiable.
+
+## Limitación conocida
+- Filtro B2 del tablero: un proveedor de prueba que quede `activo` (no dado de baja) sigue apareciendo en el gráfico de materia prima por proveedor. Si molesta en la defensa, la alternativa es B1 (seed de datos de demo).

@@ -4,7 +4,7 @@
 
 | Rol | Puede hacer |
 |---|---|
-| **Calidad** | Registrar materia prima, gestionar proveedores, consultar trazabilidad y reportes |
+| **Calidad** | Registrar materia prima, consultar trazabilidad y reportes |
 | **Logística** | Crear lotes de producción, asociar materia prima a un lote, consultar trazabilidad y reportes |
 | **Supervisión** | Todo lo anterior, más la gestión de usuarios |
 
@@ -58,7 +58,7 @@ Menú **"Reportes"**. Muestra 4 indicadores: materia prima registrada en el per�
 
 ## 7. Gestión de usuarios (solo Supervisión)
 
-Menú **"Usuarios"**, visible pero bloqueado para Calidad y Logística (redirige a "Acceso denegado"). Supervisión puede ver el listado de usuarios activos, crear uno nuevo (nombre, email, contraseña y rol), editar nombre/email/rol de uno existente, o darlo de baja. No podés darte de baja a vos mismo.
+Menú **"Usuarios"**, visible solo para Supervisión. Si Calidad o Logística intentan entrar escribiendo la URL `/usuarios`, el sistema muestra "Acceso denegado". Supervisión puede ver el listado de usuarios activos, crear uno nuevo (nombre, email, contraseña y rol), editar nombre/email/rol de uno existente, o darlo de baja. No podés darte de baja a vos mismo.
 
 ![Gestión de usuarios](capturas/08_usuarios.png)
 
