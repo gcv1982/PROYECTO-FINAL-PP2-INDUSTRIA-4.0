@@ -2,7 +2,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Claude (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2) |
 | Objetivo | Cumplir la funcionalidad específica del KIT AVZ-03: que la materia prima tenga una **etiqueta QR real** (imagen) y que al escanearla se acceda a su trazabilidad. Hasta S6 el "QR" era solo un texto (`MP-<timestamp>`). |
 | Consulta | Cómo generar la imagen QR al registrar una MP y cómo leerla para abrir la trazabilidad; en qué archivos del proyecto colocar cada parte. |
 | Resultado | Generación del QR en el frontend con `qrcode.react` + lectura con la cámara del celular (el QR codifica una URL a la pantalla de trazabilidad). |

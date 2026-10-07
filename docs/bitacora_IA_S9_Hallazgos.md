@@ -2,7 +2,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Claude (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2) |
 | Objetivo | Saldar los 3 hallazgos pendientes desde S6 (H3, H4, H5) y limpiar los datos de prueba que ensuciaban el tablero de KPIs de S8 |
 | Consulta | Diagnóstico de los 3 bugs y dos alternativas para cada decisión abierta (alcance del bloqueo de H3, y cómo limpiar el tablero) |
 | Resultado | Newman: 70/70 (antes 67/70). Tablero de KPIs sin proveedores dados de baja mezclados con los reales |

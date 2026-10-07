@@ -2,7 +2,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Claude (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2) |
 | Objetivo | Cumplir lo pedido por la Guía para S8: KPIs, gráficos, filtros, validaciones y UX |
 | Consulta | Qué alcance conviene para S8 dado el poco tiempo disponible, y cómo implementarlo sobre el modelo de datos real del proyecto |
 | Resultado | Endpoint de reportes agregados + tablero de KPIs con gráficos y filtros, deuda de Postman de S6 saldada, y dos mejoras de UX puntuales |

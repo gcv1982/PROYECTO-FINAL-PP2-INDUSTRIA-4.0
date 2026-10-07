@@ -2,7 +2,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Claude (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2) |
 | Objetivo | Probar Update/Delete de las 4 entidades (deuda S4) y corregir los hallazgos críticos antes del flujo integral S6 |
 | Consulta | Generar colección Postman de Update/Delete; luego corregir H1 y H2 detectados por esa colección |
 | Resultado | Colección de 62 requests / 70 aserciones (`tests/postman/`). Antes de corregir: 61 OK / 9 fallan. Después: 67 OK / 3 fallan (H3–H5, deuda planificada para S9) |
@@ -35,7 +35,7 @@
 
 | Campo | Detalle |
 |---|---|
-| Herramienta | Claude (tutor PP2) |
+| Herramienta | Asistente de IA (tutor PP2) |
 | Objetivo | Evidenciar el flujo integral frontend → API → BD → interfaz sin capturas manuales |
 | Resultado | Script `tests/e2e/escenario_s6.mjs` (Playwright): recorre 8 pasos en el navegador, guarda una captura por paso en `tests/e2e/evidencias/` y genera `tests/e2e/informe_s6.md` |
 
