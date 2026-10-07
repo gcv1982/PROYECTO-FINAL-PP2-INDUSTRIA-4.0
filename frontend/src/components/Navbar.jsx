@@ -20,6 +20,7 @@ function Navbar() {
       <Link to="/lote/nuevo">Crear lote</Link>
       <Link to="/lote/asociar">Asociar a lote</Link>
       <Link to="/reportes">Reportes</Link>
+      {usuario.rol === 'supervision' && <Link to="/usuarios">Usuarios</Link>}
       <span style={{ marginLeft: 'auto' }}>
         {usuario.nombre} ({usuario.rol})
       </span>
