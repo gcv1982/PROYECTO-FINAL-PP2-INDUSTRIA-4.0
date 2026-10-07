@@ -27,7 +27,7 @@
 3. **Matriz de permisos**: flexible, Supervisión con acceso amplio — decisión del estudiante.
 4. **Delete = baja lógica en las 4 entidades** — decisión del estudiante, agrega campo `activo` a LoteProduccion y MateriaPrima.
 5. **Gestión de Usuario sin restricción de rol adicional** — decisión del estudiante.
-6. **PostgreSQL como motor**: la guía definía MySQL; el cambio fue solicitado por el estudiante en S3 y autorizado por el docente.
+6. **PostgreSQL como motor**: elegido en S3; admitido entre las tecnologías base del proyecto (MySQL o PostgreSQL).
 
 ## Cómo aplicar los cambios de base de datos
 

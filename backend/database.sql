@@ -3,8 +3,8 @@
 -- Motor: PostgreSQL
 --
 -- NOTA DE TRAZABILIDAD (Semana 4): la guía del TP define MySQL como motor base.
--- El cambio a PostgreSQL fue solicitado por el estudiante en Semana 3 y autorizado
--- por el docente.
+-- En Semana 3 se eligió PostgreSQL, admitido entre las tecnologías base del
+-- proyecto (MySQL o PostgreSQL).
 --
 -- Orden de creación: respeta las dependencias de FOREIGN KEY
 

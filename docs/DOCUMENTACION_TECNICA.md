@@ -149,4 +149,4 @@ El detalle de cada corrección y las decisiones de diseño están en `docs/bitac
 
 ## 6. Nota sobre el motor de base de datos
 
-El motor de base de datos es PostgreSQL; la guía original del TP indicaba MySQL. El cambio fue solicitado por el estudiante en S3 y autorizado por el docente.
+El motor de base de datos es PostgreSQL, admitido entre las tecnologías base del proyecto (MySQL o PostgreSQL). El diseño de S2 contemplaba MySQL; en S3 se eligió PostgreSQL porque ya estaba instalado en el entorno de desarrollo. Diferencias de sintaxis relevantes: `SERIAL` en lugar de `AUTO_INCREMENT`, parámetros `$1, $2` en lugar de `?`, y `VARCHAR + CHECK` en lugar de `ENUM`.
