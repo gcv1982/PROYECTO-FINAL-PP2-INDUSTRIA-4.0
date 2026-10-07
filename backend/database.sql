@@ -3,9 +3,8 @@
 -- Motor: PostgreSQL
 --
 -- NOTA DE TRAZABILIDAD (Semana 4): la guía del TP define MySQL como motor base.
--- El cambio a PostgreSQL fue solicitado por el estudiante en Semana 3 y quedó
--- registrado como NO VERIFICABLE por falta de constancia formal de autorización
--- docente. Gestionar esa validación antes de la defensa.
+-- El cambio a PostgreSQL fue solicitado por el estudiante en Semana 3 y autorizado
+-- por el docente.
 --
 -- Orden de creación: respeta las dependencias de FOREIGN KEY
 

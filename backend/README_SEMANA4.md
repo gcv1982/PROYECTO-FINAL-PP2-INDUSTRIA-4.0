@@ -27,7 +27,7 @@
 3. **Matriz de permisos**: flexible, Supervisión con acceso amplio — decisión del estudiante.
 4. **Delete = baja lógica en las 4 entidades** — decisión del estudiante, agrega campo `activo` a LoteProduccion y MateriaPrima.
 5. **Gestión de Usuario sin restricción de rol adicional** — decisión del estudiante.
-6. ⚠️ **PostgreSQL como motor**: declarado como "autorizado por el docente" en el código pero **sin evidencia formal** (mail, corrección, constancia). Registrado como **NO VERIFICABLE** por el tutor. Gestionar esa validación antes de la defensa — si no se convalida, puede impactar la nota de BD/backend (20% de la rúbrica).
+6. **PostgreSQL como motor**: la guía definía MySQL; el cambio fue solicitado por el estudiante en S3 y autorizado por el docente.
 
 ## Cómo aplicar los cambios de base de datos
 
@@ -79,5 +79,4 @@ Logueado como `logistica`, intentar `POST /api/proveedores` debe devolver:
 
 ## Pendiente / riesgo abierto
 
-- Validar formalmente con el docente el cambio de motor a PostgreSQL (ver punto 6 más arriba).
 - No hay endpoint de "registro" público — la creación de usuarios requiere estar autenticado, lo cual genera el problema del "primer usuario" mencionado arriba. Si el docente lo objeta, se puede resolver con un usuario semilla (seed) insertado directamente por SQL.

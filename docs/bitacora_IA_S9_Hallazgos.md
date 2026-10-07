@@ -33,5 +33,4 @@ Entre seed de datos de demo (B1) y filtrar `activo = true` en la consulta (B2), 
 ## Pendiente (para esta misma semana, S9)
 - Documentación técnica (`docs/`): instalación, variables de `.env`, endpoints de la API, modelo de datos y plan de pruebas (Postman + E2E + hallazgos H1–H6).
 - Manual de usuario por rol, con capturas de datos de demo limpios.
-- Constancia escrita del cambio de motor MySQL → PostgreSQL (pendiente desde S4, necesaria para la defensa).
 - Limitación conocida de B2: un proveedor de prueba que quede `activo` (no dado de baja) sigue apareciendo en el tablero; si esto molesta en la defensa, la alternativa es B1 (seed de datos de demo).

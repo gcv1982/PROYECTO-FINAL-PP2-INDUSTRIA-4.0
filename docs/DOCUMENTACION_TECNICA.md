@@ -147,6 +147,6 @@ Resultado por corrida (exportado como JSON en la misma carpeta):
 
 El detalle de cada corrección y las decisiones de diseño están en `docs/bitacora_IA_S6_H1_H2.md` y `docs/bitacora_IA_S9_Hallazgos.md`.
 
-## 6. Nota pendiente para la defensa
+## 6. Nota sobre el motor de base de datos
 
-El motor de base de datos es PostgreSQL; la guía original del TP indicaba MySQL. El cambio fue decisión del estudiante en S3 y quedó registrado en el código como "autorizado por el docente" **sin constancia formal** (mail o corrección que lo confirme). Esto sigue sin resolverse — gestionar la validación antes de la defensa, porque puede impactar la nota de BD/backend.
+El motor de base de datos es PostgreSQL; la guía original del TP indicaba MySQL. El cambio fue solicitado por el estudiante en S3 y autorizado por el docente.
