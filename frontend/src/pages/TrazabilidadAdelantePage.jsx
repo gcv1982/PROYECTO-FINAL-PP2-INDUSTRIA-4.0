@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { QRCodeCanvas } from 'qrcode.react';
 import api from '../services/api';
 import { formatFecha } from '../utils/formatFecha';
 
@@ -23,6 +24,14 @@ function TrazabilidadAdelantePage() {
 const buscar = (e) => {
   e.preventDefault();
   consultar(id);
+};
+
+const descargarQR = () => {
+  const canvas = document.getElementById('qr-reimpreso');
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = `QR_${resultado.materia_prima.codigo_qr}.png`;
+  link.click();
 };
 
 const [params] = useSearchParams();
@@ -50,16 +59,29 @@ useEffect(() => {
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {resultado && (
-        <div>
-          <h3>Materia Prima</h3>
-          <p>{resultado.materia_prima.nombre} — Estado: {resultado.materia_prima.estado}</p>
-          <p>Proveedor: {resultado.materia_prima.proveedor.nombre} — QR: {resultado.materia_prima.codigo_qr}</p>
-          <h3>Lote de producción</h3>
-          {resultado.lote ? (
-            <p>{resultado.lote.codigo_lote} — {resultado.lote.producto} ({formatFecha(resultado.lote.fecha_produccion)})</p>
-          ) : (
-            <p>Todavía no fue asociada a ningún lote de producción.</p>
-          )}
+        <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div>
+            <h3>Materia Prima</h3>
+            <p>{resultado.materia_prima.nombre} — Estado: {resultado.materia_prima.estado}</p>
+            <p>Proveedor: {resultado.materia_prima.proveedor.nombre} — QR: {resultado.materia_prima.codigo_qr}</p>
+            <h3>Lote de producción</h3>
+            {resultado.lote ? (
+              <p>{resultado.lote.codigo_lote} — {resultado.lote.producto} ({formatFecha(resultado.lote.fecha_produccion)})</p>
+            ) : (
+              <p>Todavía no fue asociada a ningún lote de producción.</p>
+            )}
+          </div>
+
+          <div style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)', padding: '1.5rem 2rem', textAlign: 'center' }}>
+            <h3>Etiqueta QR – {resultado.materia_prima.codigo_qr}</h3>
+            <QRCodeCanvas
+              id="qr-reimpreso"
+              value={`${import.meta.env.VITE_APP_URL}/trazabilidad/adelante?id=${resultado.materia_prima.id_materia_prima}`}
+              size={200}
+              includeMargin
+            />
+            <div style={{ marginTop: '1rem' }}><button onClick={descargarQR}>Reimprimir etiqueta</button></div>
+          </div>
         </div>
       )}
     </div>
